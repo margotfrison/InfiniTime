@@ -7,6 +7,7 @@
 #include "components/settings/Settings.h"
 #include <FreeRTOS.h>
 #include <semphr.h>
+#include "DecimalTime.h"
 
 namespace Pinetime {
   namespace System {
@@ -83,6 +84,18 @@ namespace Pinetime {
         return localTime.tm_sec;
       }
 
+      uint8_t Hours10() const {
+        return decimalTime.hour;
+      }
+
+      uint8_t Minutes10() const {
+        return decimalTime.minute;
+      }
+
+      uint8_t Seconds10() const {
+        return decimalTime.second;
+      }
+
       /*
        * returns the offset between local time and UTC in quarters of an hour
        *
@@ -143,6 +156,7 @@ namespace Pinetime {
     private:
       void UpdateTime(uint32_t systickCounter, bool forceUpdate);
 
+      DecimalTime decimalTime;
       std::tm localTime;
       int8_t tzOffset = 0;
       int8_t dstOffset = 0;

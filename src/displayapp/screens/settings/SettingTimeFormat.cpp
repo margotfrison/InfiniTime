@@ -13,9 +13,10 @@ namespace {
     const char* name;
   };
 
-  constexpr std::array<Option, 2> options = {{
+  constexpr std::array<Option, 3> options = {{
     {Pinetime::Controllers::Settings::ClockType::H12, "12-hour"},
     {Pinetime::Controllers::Settings::ClockType::H24, "24-hour"},
+    {Pinetime::Controllers::Settings::ClockType::H10, "10-hour"},
   }};
 
   std::array<CheckboxList::Item, CheckboxList::MaxItems> CreateOptionArray() {

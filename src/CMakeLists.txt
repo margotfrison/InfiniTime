@@ -448,6 +448,7 @@ list(APPEND SOURCE_FILES
         components/ble/BleController.cpp
         components/ble/NotificationManager.cpp
         components/datetime/DateTimeController.cpp
+        components/datetime/DecimalTime.cpp
         components/brightness/BrightnessController.cpp
         components/motion/MotionController.cpp
         components/ble/NimbleController.cpp
@@ -519,6 +520,7 @@ list(APPEND RECOVERY_SOURCE_FILES
         components/ble/BleController.cpp
         components/ble/NotificationManager.cpp
         components/datetime/DateTimeController.cpp
+        components/datetime/DecimalTime.cpp
         components/brightness/BrightnessController.cpp
         components/motion/MotionController.cpp
         components/ble/NimbleController.cpp
@@ -639,6 +641,7 @@ set(INCLUDE_FILES
         components/ble/BleController.h
         components/ble/NotificationManager.h
         components/datetime/DateTimeController.h
+        components/datetime/DecimalTime.h
         components/brightness/BrightnessController.h
         components/motion/MotionController.h
         components/firmwarevalidator/FirmwareValidator.h
