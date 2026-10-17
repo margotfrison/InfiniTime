@@ -106,6 +106,7 @@ void DateTime::UpdateTime(uint32_t systickCounter, bool forceUpdate) {
 
   std::time_t currentTime = std::chrono::system_clock::to_time_t(currentDateTime);
   localTime = *std::localtime(&currentTime);
+  decimalTime = DecimalTime::localtime(&currentTime);
 
   auto minute = Minutes();
   auto hour = Hours();

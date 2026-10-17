@@ -477,9 +477,18 @@ void WatchFacePineTimeStyle::Refresh() {
 
   currentDateTime = dateTimeController.CurrentDateTime();
   if (currentDateTime.IsUpdated()) {
-    auto hour = dateTimeController.Hours();
-    auto minute = dateTimeController.Minutes();
-    auto second = dateTimeController.Seconds();
+    uint8_t hour;
+    uint8_t minute;
+    uint8_t second;
+    if (settingsController.GetClockType() == Controllers::Settings::ClockType::H10) {
+      hour = dateTimeController.Hours10();
+      minute = dateTimeController.Minutes10();
+      second = dateTimeController.Seconds10();
+    } else {
+      hour = dateTimeController.Hours();
+      minute = dateTimeController.Minutes();
+      second = dateTimeController.Seconds();
+    }
     auto year = dateTimeController.Year();
     auto month = dateTimeController.Month();
     auto dayOfWeek = dateTimeController.DayOfWeek();
@@ -489,7 +498,8 @@ void WatchFacePineTimeStyle::Refresh() {
       displayedHour = hour;
       displayedMinute = minute;
 
-      if (settingsController.GetClockType() == Controllers::Settings::ClockType::H12) {
+      if (settingsController.GetClockType() == Controllers::Settings::ClockType::H10) {
+      } else if (settingsController.GetClockType() == Controllers::Settings::ClockType::H12) {
         char ampmChar[4] = "A\nM";
         if (hour == 0) {
           hour = 12;
@@ -500,14 +510,10 @@ void WatchFacePineTimeStyle::Refresh() {
           ampmChar[0] = 'P';
         }
         lv_label_set_text(timeAMPM, ampmChar);
-        // Should be padded with blank spaces, but the space character doesn't exist in the font
-        lv_label_set_text_fmt(timeDD1, "%02d", hour);
-        lv_label_set_text_fmt(timeDD2, "%02d", minute);
-      } else {
-        lv_label_set_text_fmt(timeDD1, "%02d", hour);
-        lv_label_set_text_fmt(timeDD2, "%02d", minute);
       }
     }
+    lv_label_set_text_fmt(timeDD1, "%02d", hour);
+    lv_label_set_text_fmt(timeDD2, "%02d", minute);
 
     if (displayedSecond != second) {
       displayedSecond = second;

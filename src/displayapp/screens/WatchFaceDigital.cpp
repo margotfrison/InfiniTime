@@ -58,9 +58,8 @@ WatchFaceDigital::WatchFaceDigital(Controllers::DateTime& dateTimeController,
   lv_obj_set_style_local_text_color(label_date, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, lv_color_hex(0x999999));
 
   label_time = lv_label_create(lv_scr_act(), nullptr);
-  lv_obj_set_style_local_text_font(label_time, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &jetbrains_mono_extrabold_compressed);
-
   lv_obj_align(label_time, lv_scr_act(), LV_ALIGN_IN_RIGHT_MID, 0, 0);
+  lv_obj_set_style_local_text_font(label_time, LV_LABEL_PART_MAIN, LV_STATE_DEFAULT, &jetbrains_mono_extrabold_compressed);
 
   label_time_ampm = lv_label_create(lv_scr_act(), nullptr);
   lv_label_set_text_static(label_time_ampm, "");
@@ -106,8 +105,22 @@ void WatchFaceDigital::Refresh() {
   currentDateTime = std::chrono::time_point_cast<std::chrono::minutes>(dateTimeController.CurrentDateTime());
 
   if (currentDateTime.IsUpdated()) {
-    uint8_t hour = dateTimeController.Hours();
-    uint8_t minute = dateTimeController.Minutes();
+    uint8_t hour;
+    uint8_t minute;
+    uint8_t second;
+    const char* formatTime;
+
+    if (settingsController.GetClockType() == Controllers::Settings::ClockType::H10) {
+      hour = dateTimeController.Hours10();
+      minute = dateTimeController.Minutes10();
+      second = dateTimeController.Seconds10();
+      formatTime = "%1d:%02d";
+    } else {
+      hour = dateTimeController.Hours();
+      minute = dateTimeController.Minutes();
+      second = dateTimeController.Seconds();
+      formatTime = "%2d:%02d";
+    }
 
     if (settingsController.GetClockType() == Controllers::Settings::ClockType::H12) {
       char ampmChar[3] = "AM";
@@ -120,10 +133,10 @@ void WatchFaceDigital::Refresh() {
         ampmChar[0] = 'P';
       }
       lv_label_set_text(label_time_ampm, ampmChar);
-      lv_label_set_text_fmt(label_time, "%2d:%02d", hour, minute);
+      lv_label_set_text_fmt(label_time, formatTime, hour, minute, second);
       lv_obj_align(label_time, lv_scr_act(), LV_ALIGN_IN_RIGHT_MID, 0, 0);
     } else {
-      lv_label_set_text_fmt(label_time, "%02d:%02d", hour, minute);
+      lv_label_set_text_fmt(label_time, formatTime, hour, minute, second);
       lv_obj_align(label_time, lv_scr_act(), LV_ALIGN_CENTER, 0, 0);
     }
 
@@ -138,12 +151,19 @@ void WatchFaceDigital::Refresh() {
                               day,
                               dateTimeController.MonthShortToString(),
                               year);
-      } else {
+      } else if (settingsController.GetClockType() == Controllers::Settings::ClockType::H12) {
         lv_label_set_text_fmt(label_date,
                               "%s %s %d %d",
                               dateTimeController.DayOfWeekShortToString(),
                               dateTimeController.MonthShortToString(),
                               day,
+                              year);
+      } else {
+        lv_label_set_text_fmt(label_date,
+                              "%04d-%02d-%02d",
+                              dateTimeController.Year(),
+                              dateTimeController.Month(),
+                              dateTimeController.Day(),
                               year);
       }
       lv_obj_realign(label_date);

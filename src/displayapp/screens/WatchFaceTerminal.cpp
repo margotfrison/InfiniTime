@@ -92,23 +92,35 @@ void WatchFaceTerminal::Refresh() {
 
   currentDateTime = std::chrono::time_point_cast<std::chrono::seconds>(dateTimeController.CurrentDateTime());
   if (currentDateTime.IsUpdated()) {
-    uint8_t hour = dateTimeController.Hours();
-    uint8_t minute = dateTimeController.Minutes();
-    uint8_t second = dateTimeController.Seconds();
+    uint8_t hour;
+    uint8_t minute;
+    uint8_t second;
 
-    if (settingsController.GetClockType() == Controllers::Settings::ClockType::H12) {
-      char ampmChar[3] = "AM";
-      if (hour == 0) {
-        hour = 12;
-      } else if (hour == 12) {
-        ampmChar[0] = 'P';
-      } else if (hour > 12) {
-        hour = hour - 12;
-        ampmChar[0] = 'P';
-      }
-      lv_label_set_text_fmt(labelTime, "#ffffff [TIME]# #11cc55 %02d:%02d:%02d %s#", hour, minute, second, ampmChar);
+    if (settingsController.GetClockType() == Controllers::Settings::ClockType::H10) {
+      hour = dateTimeController.Hours10();
+      minute = dateTimeController.Minutes10();
+      second = dateTimeController.Seconds10();
+
+      lv_label_set_text_fmt(labelTime, "#ffffff [TIME]# #11cc55 %1d:%02d:%02d#", hour, minute, second);
     } else {
-      lv_label_set_text_fmt(labelTime, "#ffffff [TIME]# #11cc55 %02d:%02d:%02d#", hour, minute, second);
+      hour = dateTimeController.Hours();
+      minute = dateTimeController.Minutes();
+      second = dateTimeController.Seconds();
+
+      if (settingsController.GetClockType() == Controllers::Settings::ClockType::H12) {
+        char ampmChar[3] = "AM";
+        if (hour == 0) {
+          hour = 12;
+        } else if (hour == 12) {
+          ampmChar[0] = 'P';
+        } else if (hour > 12) {
+          hour = hour - 12;
+          ampmChar[0] = 'P';
+        }
+        lv_label_set_text_fmt(labelTime, "#ffffff [TIME]# #11cc55 %02d:%02d:%02d %s#", hour, minute, second, ampmChar);
+      } else {
+        lv_label_set_text_fmt(labelTime, "#ffffff [TIME]# #11cc55 %02d:%02d:%02d#", hour, minute, second);
+      }
     }
 
     currentDate = std::chrono::time_point_cast<std::chrono::days>(currentDateTime.Get());

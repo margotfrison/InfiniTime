@@ -222,23 +222,36 @@ void WatchFacePrideFlag::Refresh() {
 
   currentDateTime = std::chrono::time_point_cast<std::chrono::seconds>(dateTimeController.CurrentDateTime());
   if (currentDateTime.IsUpdated() || themeChanged) {
-    uint8_t hour = dateTimeController.Hours();
-    const uint8_t minute = dateTimeController.Minutes();
-    const uint8_t second = dateTimeController.Seconds();
+    uint8_t hour;
+    uint8_t minute;
+    uint8_t second;
+    const char* formatTime;
 
-    if (settingsController.GetClockType() == Controllers::Settings::ClockType::H12) {
-      if (hour == 0) {
-        ampmChar = "AM";
-        hour = 12;
-      } else if (hour == 12) {
-        ampmChar = "PM";
-      } else if (hour > 12) {
-        hour = hour - 12;
-        ampmChar = "PM";
+    if (settingsController.GetClockType() == Controllers::Settings::ClockType::H10) {
+      hour = dateTimeController.Hours10();
+      minute = dateTimeController.Minutes10();
+      second = dateTimeController.Seconds10();
+      formatTime = "%1d:%02d:%02d";
+    } else {
+      hour = dateTimeController.Hours();
+      minute = dateTimeController.Minutes();
+      second = dateTimeController.Seconds();
+      formatTime = "%02d:%02d:%02d";
+
+      if (settingsController.GetClockType() == Controllers::Settings::ClockType::H12) {
+        if (hour == 0) {
+          ampmChar = "AM";
+          hour = 12;
+        } else if (hour == 12) {
+          ampmChar = "PM";
+        } else if (hour > 12) {
+          hour = hour - 12;
+          ampmChar = "PM";
+        }
       }
     }
 
-    lv_label_set_text_fmt(labelTime, "%02d:%02d:%02d", hour, minute, second);
+    lv_label_set_text_fmt(labelTime, formatTime, hour, minute, second);
 
     currentDate = std::chrono::time_point_cast<std::chrono::days>(currentDateTime.Get());
     if (currentDate.IsUpdated() || ampmChar.IsUpdated() || themeChanged) {
@@ -246,7 +259,11 @@ void WatchFacePrideFlag::Refresh() {
       const Controllers::DateTime::Months month = dateTimeController.Month();
       const uint8_t day = dateTimeController.Day();
       const Controllers::DateTime::Days dayOfWeek = dateTimeController.DayOfWeek();
-      lv_label_set_text_fmt(labelDate, "%02d-%02d-%04d", day, static_cast<uint8_t>(month), year);
+      if (settingsController.GetClockType() == Controllers::Settings::ClockType::H10) {
+        lv_label_set_text_fmt(labelDate, "%04d-%02d-%02d", year, static_cast<uint8_t>(month), day);
+      } else {
+        lv_label_set_text_fmt(labelDate, "%02d-%02d-%04d", day, static_cast<uint8_t>(month), year);
+      }
       if (settingsController.GetClockType() == Controllers::Settings::ClockType::H12) {
         lv_label_set_text_fmt(labelDay, "%s %s", dateTimeController.DayOfWeekToStringLow(dayOfWeek), ampmChar);
       } else {
